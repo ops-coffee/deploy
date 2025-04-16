@@ -1,0 +1,97 @@
+services:
+
+  mysql:
+    image: mysql:8.0
+    container_name: ops-mysql
+    restart: always
+    environment:
+      TZ: Asia/Shanghai
+      MYSQL_ALLOW_EMPTY_PASSWORD: yes
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./init-mysql.sql:/docker-entrypoint-initdb.d/init-mysql.sql
+    networks:
+      ops-coffee:
+        ipv4_address: 172.22.0.2
+    ports:
+      - '3306:3306'
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:6.2
+    container_name: ops-redis
+    restart: always
+    environment:
+      TZ: Asia/Shanghai
+    volumes:
+      - redis-data:/data
+    networks:
+      ops-coffee:
+        ipv4_address: 172.22.0.3
+    ports:
+      - '6379:6379'
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+
+  rabbitmq:
+    image: rabbitmq:4.0
+    container_name: ops-rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER:-admin}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS:-ops-coffee}
+      RABBITMQ_DEFAULT_VHOST: ${RABBITMQ_DEFAULT_VHOST:-codo}
+    networks:
+      ops-coffee:
+        ipv4_address: 172.22.0.4
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
+  ops-app:
+    image: crpi-deapf9g57ymi8i4g.cn-hangzhou.personal.cr.aliyuncs.com/ops_coffee/kissops:0.0.1
+    container_name: ops-app
+    environment:
+      TZ: Asia/Shanghai
+      WAIT_HOSTS: ops-mysql:3306, ops-redis:6379, ops-rabbitmq:5672
+    depends_on:
+      - mysql
+      - redis
+      - rabbitmq
+    working_dir: /home/project/devops
+    volumes:
+      - ./init-application.sh:/tmp/init-application.sh
+    command: >
+      bash -c "sh /tmp/init-application.sh && \
+               sh -c 'while true; do sleep 3600; done'"
+    networks:
+      ops-coffee:
+        ipv4_address: 172.22.0.10
+    ports:
+      - '8001:8001'
+      - '8080:8080'
+      - '8081:8081'
+
+volumes:
+  mysql-data:
+    driver: local
+    name: mysql-data
+  redis-data:
+    driver: local
+    name: redis-data
+
+networks:
+  ops-coffee:
+    name: ops_coffee_network
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: "172.22.0.0/24"

@@ -1,0 +1,11 @@
+CREATE DATABASE IF NOT EXISTS devops DEFAULT CHARACTER SET utf8mb4;
+
+CREATE USER IF NOT EXISTS 'code_devops'@'%' IDENTIFIED BY 'ops-coffee';
+GRANT ALL PRIVILEGES ON devops.* TO 'code_devops'@'%';
+FLUSH PRIVILEGES;
+
+CREATE DATABASE IF NOT EXISTS agent_server DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+CREATE USER IF NOT EXISTS 'code_agent'@'%' IDENTIFIED BY 'ops-coffee';
+GRANT ALL PRIVILEGES ON agent_server.* TO 'code_agent'@'%';
+FLUSH PRIVILEGES;
