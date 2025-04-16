@@ -1,7 +1,7 @@
 ## 环境依赖
 
-系统：Debian GNU/Linux 12 (bookworm)
-Python版本：3.11.12
+- 系统：Debian GNU/Linux 12 (bookworm)
+- Python版本：3.11.12
 
 ## 安装部署
 
@@ -11,7 +11,7 @@ Python版本：3.11.12
 curl -fsSL https://get.docker.com -o get-docker.sh | sudo sh
 ```
 
-# 新版本docker已经默认安装了docker compose无需额外安装
+新版本docker已经默认安装了docker compose无需额外安装
 
 ```
 sudo curl -L "https://github.com/docker/compose/releases/download/1.24.1/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
