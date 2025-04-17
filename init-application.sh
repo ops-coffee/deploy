@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# 初始化数据
 python3 manage.py collectstatic --noinput && \
 python3 manage.py makemigrations && \
 python3 manage.py migrate  || { echo >&2 "migrate failed. Aborting."; exit 1; }
@@ -21,6 +22,7 @@ else:\n\
 
 # 启动服务
 echo "启动服务..."
+chmod +x /home/project/agent-server/agent-server-* && \
 cp supervisor.conf /etc/supervisor/conf.d/devops.conf || \
 { echo >&2 "An error occurred. Aborting."; exit 1; }
 
